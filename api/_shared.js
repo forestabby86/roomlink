@@ -1,7 +1,9 @@
 'use strict';
 
-// Version 1 room link schema, encoded directly in the URL.
-// This is NOT encryption. Do not put private credentials in these links.
+// Versioned room link schemas, encoded directly in the URL.
+// Version 1: [1,name,schedule,time,zone,id,passcode,password,zoom]
+// Version 2: same fields followed by a card theme.
+// This is NOT encryption. Never put private credentials in RoomLink URLs.
 const ZONES = {
   'America/New_York': ['ET', 'Eastern Time'],
   'America/Chicago': ['CT', 'Central Time'],
@@ -16,6 +18,12 @@ const ZONES = {
   'UTC': ['UTC', 'Coordinated Universal Time'],
 };
 
+const THEMES = Object.freeze({
+  copper: { bg:'#111a2b', accent:'#ffb785', orbit:'#27334d', orbit2:'#303d57', pill:'#3d3540', panel:'#273247', stroke:'#43516c', muted:'#c5d0e1', label:'#bbcadf', footer:'#a5b5c9' },
+  ocean: { bg:'#0b2240', accent:'#85e1f1', orbit:'#17466b', orbit2:'#235a76', pill:'#153c58', panel:'#153a59', stroke:'#2e6585', muted:'#d1e8f3', label:'#b9dbe9', footer:'#b1cbdf' },
+  forest: { bg:'#112723', accent:'#b9e5ad', orbit:'#284a42', orbit2:'#33594a', pill:'#26413a', panel:'#24413b', stroke:'#4b7365', muted:'#d8e9de', label:'#c7decd', footer:'#b9d5c1' },
+  plum: { bg:'#24172f', accent:'#ffc0df', orbit:'#483154', orbit2:'#5b3c60', pill:'#503048', panel:'#432d4d', stroke:'#78526f', muted:'#e5d9ee', label:'#e7cfe2', footer:'#cdb7d3' },
+});
 function normalizeString(s, max) {
   return typeof s === 'string' ? s.trim().slice(0, max) : '';
 }
@@ -42,8 +50,8 @@ function decodeRoom(code) {
   try {
     const json = Buffer.from(code, 'base64url').toString('utf8');
     const array = JSON.parse(json);
-    if (!Array.isArray(array) || array.length !== 9 || array[0] !== 1) return null;
-    const [_, n, s, t, z, i, p, w, u] = array;
+    if (!Array.isArray(array) || !((array[0] === 1 && array.length === 9) || (array[0] === 2 && array.length === 10))) return null;
+    const [version, n, s, t, z, i, p, w, u, themeInput] = array;
     const name = normalizeString(n, 80);
     const schedule = normalizeString(s, 48);
     const time = normalizeString(t, 5);
@@ -53,7 +61,9 @@ function decodeRoom(code) {
     const password = normalizeString(w, 60);
     const zoom = normalizeString(u, 2048);
     if (!name || !schedule || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time) || !ZONES[zone] || !parseZoomLink(zoom)) return null;
-    return { name, schedule, time, zone, meetingId, passcode, password, zoom };
+    if (version === 2 && (typeof themeInput !== 'string' || !Object.hasOwn(THEMES, themeInput))) return null;
+    const theme = version === 1 ? 'copper' : themeInput;
+    return { name, schedule, time, zone, meetingId, passcode, password, zoom, theme }; 
   } catch (_) {
     return null;
   }
@@ -78,4 +88,4 @@ function getBase(req) {
   return `${proto === 'http' ? 'http' : 'https'}://${host}`;
 }
 
-module.exports = { ZONES, decodeRoom, formatTime, html, zoneAbbr, zoneName, getBase, parseZoomLink };
+module.exports = { ZONES, THEMES, decodeRoom, formatTime, html, zoneAbbr, zoneName, getBase, parseZoomLink };

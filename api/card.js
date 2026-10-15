@@ -1,6 +1,6 @@
 'use strict';
 const sharp = require('sharp');
-const { decodeRoom, formatTime, html: esc, zoneAbbr } = require('./_shared');
+const { decodeRoom, formatTime, html: esc, zoneAbbr, THEMES } = require('./_shared');
 
 function lines(text, maxChars, maxLines = 2) {
   const words = text.split(/\s+/);
@@ -22,6 +22,7 @@ function lines(text, maxChars, maxLines = 2) {
 }
 
 function svg(room) {
+  const t = THEMES[room.theme] || THEMES.copper;
   const titleLines = lines(room.name, 28, 2);
   const titleSize = titleLines.some(t => t.length >= 29) ? 53 : 61;
   const titleText = titleLines.map((line,index)=>`<text x="64" y="${160 + index * 72}" font-family="Arial,Helvetica,sans-serif" font-size="${titleSize}" font-weight="800" letter-spacing="-1.3" fill="#ffffff">${esc(line)}</text>`).join('');
@@ -42,24 +43,24 @@ function svg(room) {
     const x = 64 + index*(w+gap);
     const valueSize = value.length > 25 ? 23 : value.length > 15 ? 29 : 36;
     const displayValue = value.length>32 ? value.slice(0,31)+'…' : value;
-    return `<rect x="${x}" y="${startY}" width="${w}" height="112" rx="18" fill="#273247" stroke="#43516c" stroke-width="1"/>
-      <text x="${x+22}" y="${startY+33}" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="19" letter-spacing="1.8" fill="#bbcadf">${esc(label)}</text>
+    return `<rect x="${x}" y="${startY}" width="${w}" height="112" rx="18" fill="${t.panel}" stroke="${t.stroke}" stroke-width="1"/>
+      <text x="${x+22}" y="${startY+33}" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="19" letter-spacing="1.8" fill="${t.label}">${esc(label)}</text>
       <text x="${x+22}" y="${startY+84}" font-family="Arial,Helvetica,sans-serif" font-weight="750" font-size="${valueSize}" fill="#ffffff">${esc(displayValue)}</text>`;
   }).join('');
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-    <rect x="0" y="0" width="1200" height="630" fill="#111a2b"/>
-    <rect x="0" y="0" width="13" height="630" fill="#f49c62"/>
-    <circle cx="1090" cy="-54" r="260" fill="#27334d"/>
-    <circle cx="1110" cy="-65" r="191" fill="#303d57"/>
-    <rect x="64" y="35" width="198" height="43" rx="21" fill="#3d3540"/>
-    <text x="84" y="64" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="800" letter-spacing="2" fill="#ffb785">ZOOM MEETING</text>
-    <text x="1135" y="65" text-anchor="end" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="800" letter-spacing="2" fill="#ffb785">ROOMLINK</text>
+    <rect x="0" y="0" width="1200" height="630" fill="${t.bg}"/>
+    <rect x="0" y="0" width="13" height="630" fill="${t.accent}"/>
+    <circle cx="1090" cy="-54" r="260" fill="${t.orbit}"/>
+    <circle cx="1110" cy="-65" r="191" fill="${t.orbit2}"/>
+    <rect x="64" y="35" width="198" height="43" rx="21" fill="${t.pill}"/>
+    <text x="84" y="64" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="800" letter-spacing="2" fill="${t.accent}">ZOOM MEETING</text>
+    <text x="1135" y="65" text-anchor="end" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="800" letter-spacing="2" fill="${t.accent}">ROOMLINK</text>
     ${titleText}
-    <text x="64" y="${timeY+35}" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="57" letter-spacing="-1" fill="#ffb785">${esc(formatTime(room.time))} ${esc(zoneAbbr(room.zone))}</text>
-    <text x="67" y="${timeY+85}" font-family="Arial,Helvetica,sans-serif" font-size="29" fill="#c5d0e1">${esc(room.schedule.length>36 ? room.schedule.slice(0,35)+'…' : room.schedule)}</text>
+    <text x="64" y="${timeY+35}" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="57" letter-spacing="-1" fill="${t.accent}">${esc(formatTime(room.time))} ${esc(zoneAbbr(room.zone))}</text>
+    <text x="67" y="${timeY+85}" font-family="Arial,Helvetica,sans-serif" font-size="29" fill="${t.muted}">${esc(room.schedule.length>36 ? room.schedule.slice(0,35)+'…' : room.schedule)}</text>
     ${cards}
-    <text x="66" y="${footerY}" font-family="Arial,Helvetica,sans-serif" font-size="20" fill="#a5b5c9">Tap the shared link to join the meeting</text>
-    <text x="1135" y="${footerY}" text-anchor="end" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="800" fill="#e5a77b">FREE · NO LOGIN</text>
+    <text x="66" y="${footerY}" font-family="Arial,Helvetica,sans-serif" font-size="20" fill="${t.footer}">Tap the shared link to join the meeting</text>
+    <text x="1135" y="${footerY}" text-anchor="end" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="800" fill="${t.accent}">FREE · NO LOGIN</text>
   </svg>`;
 }
 
