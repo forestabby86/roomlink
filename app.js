@@ -40,12 +40,18 @@ function base64urlEncode(input) {
 function encodeRoom(d) {
   return base64urlEncode([2,d.name,d.schedule,d.time,d.zone,d.meetingId,d.passcode,d.password,d.zoom,d.theme]);
 }
-function decodeExistingLink(raw) {
+async function decodeExistingLink(raw) {
   const url = new URL(raw);
   if (!['https:','http:'].includes(url.protocol)) throw Error('Invalid link');
   const found = url.pathname.match(/^\/r\/([A-Za-z0-9_-]+)\/?$/);
   const code = found?.[1] || (url.pathname === '/api/room' ? url.searchParams.get('code') : null);
   if (!code || code.length > 5000 || !/^[A-Za-z0-9_-]+$/.test(code)) throw Error('Not a RoomLink meeting URL');
+  if (/^[A-Za-z0-9_-]{10}$/.test(code)) {
+    const response = await fetch(`/api/expand?id=${encodeURIComponent(code)}`);
+    if (!response.ok) throw Error('Short link could not be loaded');
+    const data = await response.json();
+    return decodeExistingLink(`${location.origin}/r/${data.code}`);
+  }
   const normalized = code.replace(/-/g,'+').replace(/_/g,'/');
   const bytes = Uint8Array.from(atob(normalized.padEnd(Math.ceil(normalized.length/4)*4,'=')), c=>c.charCodeAt(0));
   const payload = JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
@@ -95,9 +101,9 @@ $('zoom-url').addEventListener('input', ()=>{
   updatePreview();
 });
 $('meeting-id').addEventListener('input',()=> { $('meeting-id').dataset.manual='true'; });
-$('load-link-button').addEventListener('click',()=>{
+$('load-link-button').addEventListener('click',async()=>{
   try {
-    const d = decodeExistingLink($('existing-link').value.trim());
+    const d = await decodeExistingLink($('existing-link').value.trim());
     const from = {
       'room-name':d.name,'zoom-url':d.zoom, 'schedule':d.schedule,'time':d.time,
       'zone':d.zone,'meeting-id':d.meetingId,'passcode':d.passcode,'password':d.password
@@ -114,7 +120,7 @@ $('load-link-button').addEventListener('click',()=>{
     $('load-message').textContent = 'Could not read that link. Paste the full RoomLink meeting URL (the one with /r/ in it).';
   }
 });
-$('room-form').addEventListener('submit', (event) => {
+$('room-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const d = getDetails();
   if (!allowedZoomUrl(d.zoom)) {
@@ -127,13 +133,31 @@ $('room-form').addEventListener('submit', (event) => {
     return;
   }
   const code = encodeRoom(d);
-  const link = `${location.origin}/r/${code}`;
+  let link = `${location.origin}/r/${code}`;
+  const button = $('create-btn');
+  button.disabled = true;
+  button.textContent = 'Creating your short link…';
+  try {
+    const response = await fetch('/api/shorten', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({code})
+    });
+    const result = await response.json();
+    if (!response.ok || !result.url) throw Error(result.error || 'Short links are unavailable');
+    link = result.url;
+    $('form-message').textContent = 'Your short RoomLink is ready!';
+  } catch (err) {
+    $('form-message').textContent = 'Short links are unavailable right now. Your full-length meeting link still works.';
+  } finally {
+    button.disabled = false;
+    button.innerHTML = 'Create my RoomLink <span>↗</span>';
+  }
   $('share-url').value = link;
   $('whatsapp-button').href = 'https://wa.me/?text=' + encodeURIComponent(link);
   $('test-button').href = link;
-  $('download-card').href = `${location.origin}/og/${code}`;
+  const shareId = link.slice(link.lastIndexOf('/') + 1);
+  $('download-card').href = `${location.origin}/og/${shareId}`;
   $('result-panel').hidden = false;
-  $('form-message').textContent = '';
   if (location.protocol === 'file:') {
     $('form-message').textContent = 'This is the local demo. Publish the project to Vercel first to create working public links.';
   }

@@ -83,7 +83,7 @@
         </fieldset>
         <div class="privacy-consent"><label class="consent-row" for="public-consent">
           <input id="public-consent" type="checkbox" required>
-          <span>I understand anyone with my RoomLink can see these meeting details, including any passcodes.</span>
+          <span>I understand my meeting details (including passcodes) are public to anyone with the link, and short links save these details in online storage.</span>
         </label></div>
         <button class="primary-button" type="submit" id="create-btn">Create my RoomLink <span>↗</span></button>
         <p class="form-note" role="status" id="form-message" aria-live="polite"></p>
@@ -114,12 +114,12 @@
         <div class="share-link-row"><input id="share-url" type="text" readonly aria-label="Generated RoomLink URL"><button type="button" id="copy-button">Copy</button></div>
         <div class="result-actions"><a class="whatsapp-button" id="whatsapp-button" target="_blank" rel="noopener noreferrer">Share to WhatsApp ↗</a><a class="test-button" id="test-button" target="_blank" rel="noopener noreferrer">Open meeting page ↗</a></div>
         <div class="result-tools"><button type="button" id="copy-invite">Copy full invitation</button><a id="download-card" download="roomlink-meeting-card.png">Download image ↓</a><button id="device-share" type="button" hidden>Share from phone ↗</button></div><p class="share-feedback" id="share-feedback" role="status" aria-live="polite"></p>
-        <p class="result-note">Changing details creates a new link; already-shared links keep their original details. No account or server-side room storage.</p>
+        <p class="result-note">Changing details creates a new link; already-shared links keep their original details. Short links store the public meeting details on a free server-side database.</p>
       </section>
       <aside class="tip"><span class="tip-icon">✦</span><div><strong>Designed for recurring meetings.</strong><p>AA, NA, recovery, book clubs, online classes, community groups — anywhere a blue Zoom square leaves people guessing.</p></div></aside>
     </div>
   </main>
 
-  <footer class="sitefoot"><span>Made for communities, not clicks. ♥</span><span>No tracking · No database · Free to use</span></footer>
+  <footer class="sitefoot"><span>Made for communities, not clicks. ♥</span><span>No accounts · Free to use</span></footer>
 </div>
 </body></html>
