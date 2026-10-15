@@ -1,0 +1,16 @@
+{
+  "name": "roomlink",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Free Zoom meeting card generator for WhatsApp and other messaging apps",
+  "scripts": {
+    "start": "node dev-server.cjs",
+    "test": "node tests.cjs"
+  },
+  "dependencies": {
+    "sharp": "^0.34.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

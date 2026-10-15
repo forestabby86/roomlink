@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111a2b">
+  <meta name="description" content="Turn a Zoom link into a beautiful, informative meeting card for WhatsApp. Free, no account required.">
+  <title>RoomLink — Make every Zoom invitation clear</title>
+  <link rel="stylesheet" href="/style.css">
+  <script defer src="/app.js"></script>
+</head>
+<body>
+<div class="page">
+  <header class="sitehead">
+    <a href="/" class="wordmark"><span class="wordmark-icon">↗</span> ROOMLINK</a>
+    <span class="free-label">100% free · No account</span>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow"><span class="dot"></span> MEETING LINKS, MADE HUMAN</div>
+    <h1>More than a<br><em>blue Zoom logo.</em></h1>
+    <p>Give your group a meeting card that actually tells people <strong>where and when to show up.</strong> Make it once. Share it anywhere.</p>
+  </section>
+
+  <main class="workspace">
+    <div class="editor panel">
+      <div class="panel-head"><div><span class="kicker">01 / CREATE</span><h2>Your meeting details</h2></div><span class="step-icon">✳</span></div>
+      <form id="room-form">
+        <label for="room-name">Room name <span class="required">*</span></label>
+        <input id="room-name" name="room-name" type="text" required maxlength="80" autocomplete="off" placeholder="e.g. What's the Point — Morning Meeting">
+
+        <label for="zoom-url">Zoom meeting link <span class="required">*</span></label>
+        <input id="zoom-url" name="zoom-url" type="url" required maxlength="2048" inputmode="url" placeholder="https://us02web.zoom.us/j/…">
+        <p class="field-help">Only genuine Zoom addresses are accepted.</p>
+
+        <div class="field-row">
+          <div class="field"><label for="schedule">Meeting days <span class="required">*</span></label>
+            <input id="schedule" name="schedule" type="text" maxlength="48" required value="Daily" placeholder="Daily, Mondays, etc."></div>
+          <div class="field"><label for="time">Start time <span class="required">*</span></label>
+            <input id="time" name="time" type="time" required value="09:00"></div>
+        </div>
+
+        <label for="zone">Time zone <span class="required">*</span></label>
+        <select id="zone" name="zone" required>
+          <option value="America/New_York">Eastern Time — ET</option>
+          <option value="America/Chicago" selected>Central Time — CT</option>
+          <option value="America/Denver">Mountain Time — MT</option>
+          <option value="America/Phoenix">Arizona — MST</option>
+          <option value="America/Los_Angeles">Pacific Time — PT</option>
+          <option value="America/Anchorage">Alaska Time</option>
+          <option value="Pacific/Honolulu">Hawaii Time</option>
+          <option value="Europe/London">United Kingdom</option>
+          <option value="Europe/Berlin">Central European Time</option>
+          <option value="Australia/Sydney">Sydney Time</option>
+          <option value="UTC">UTC</option>
+        </select>
+
+        <div class="field-row">
+          <div class="field"><label for="meeting-id">Meeting ID</label>
+            <input id="meeting-id" name="meeting-id" type="text" maxlength="32" inputmode="numeric" placeholder="Auto-filled from link"></div>
+          <div class="field"><label for="passcode">Zoom passcode</label>
+            <input id="passcode" name="passcode" type="text" maxlength="60" autocomplete="off" placeholder="If required"></div>
+        </div>
+        <label for="password">Other room password <span class="optional">(if different)</span></label>
+        <input id="password" name="password" type="text" maxlength="60" autocomplete="off" placeholder="Optional; usually the same as passcode">
+        <p class="field-help">Zoom normally uses “passcode” and “password” to mean the same thing. You may leave this last field blank.</p>
+
+        <div class="privacy-consent"><label class="consent-row" for="public-consent">
+          <input id="public-consent" type="checkbox" required>
+          <span>I understand anyone with my RoomLink can see these meeting details, including any passcodes.</span>
+        </label></div>
+        <button class="primary-button" type="submit" id="create-btn">Create my RoomLink <span>↗</span></button>
+        <p class="form-note" role="status" id="form-message" aria-live="polite"></p>
+      </form>
+    </div>
+
+    <div class="preview-side">
+      <section class="panel preview-panel">
+        <div class="panel-head"><div><span class="kicker">02 / PREVIEW</span><h2>What your group will see</h2></div><span class="step-icon">◉</span></div>
+        <div class="message-preview">
+          <div class="message-context"><span class="chat-avatar">✳</span><span>Group chat <small>· WhatsApp-style preview</small></span></div>
+          <div class="share-message">
+            <div class="meeting-image" id="meeting-image">
+              <div class="image-top"><span class="mini-pill">ZOOM MEETING</span><span class="mini-wordmark">ROOMLINK</span></div>
+              <div class="image-body"><div class="preview-room-name" id="preview-name">Your meeting name</div><div class="preview-time" id="preview-time">9:00 AM CT</div><div class="preview-schedule" id="preview-schedule">Daily</div></div>
+              <div class="image-fields" id="image-fields"><div class="image-field"><small>MEETING ID</small><strong>••• ••• ••••</strong></div><div class="image-field"><small>PASSCODE</small><strong>—</strong></div></div>
+              <div class="image-footer"><span>Tap the link to join the meeting</span><span>FREE · NO LOGIN</span></div>
+            </div>
+            <div class="message-caption"><strong id="caption-title">Your meeting name — 9:00 AM CT</strong><span id="caption-subtitle">Daily · Meeting details</span><small>your-roomlink-site.vercel.app</small></div>
+          </div>
+          <p class="preview-disclaimer">Visual preview. Actual WhatsApp cropping and layout can vary by phone.</p>
+        </div>
+      </section>
+
+      <section class="panel result-panel" id="result-panel" hidden>
+        <div class="result-head"><span class="done-icon">✓</span><div><span class="kicker">03 / SHARE</span><h2>Your meeting card is ready</h2></div></div>
+        <label for="share-url">Share this link instead of the Zoom URL</label>
+        <div class="share-link-row"><input id="share-url" type="text" readonly aria-label="Generated RoomLink URL"><button type="button" id="copy-button">Copy</button></div>
+        <div class="result-actions"><a class="whatsapp-button" id="whatsapp-button" target="_blank" rel="noopener noreferrer">Share to WhatsApp ↗</a><a class="test-button" id="test-button" target="_blank" rel="noopener noreferrer">Open meeting card ↗</a></div>
+        <p class="result-note">If you change any meeting details, press “Create my RoomLink” again and share the new link. No information is stored on a server.</p>
+      </section>
+      <aside class="tip"><span class="tip-icon">✦</span><div><strong>Designed for recurring meetings.</strong><p>AA, NA, recovery, book clubs, online classes, community groups — anywhere a blue Zoom square leaves people guessing.</p></div></aside>
+    </div>
+  </main>
+
+  <footer class="sitefoot"><span>Made for communities, not clicks. ♥</span><span>No tracking · No database · Free to use</span></footer>
+</div>
+</body></html>
