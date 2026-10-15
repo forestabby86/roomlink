@@ -1,6 +1,7 @@
 'use strict';
 const sharp = require('sharp');
 const { decodeRoom, formatTime, html: esc, zoneAbbr, THEMES } = require('./_shared');
+const { expand } = require('./_links');
 
 function lines(text, maxChars, maxLines = 2) {
   const words = text.split(/\s+/);
@@ -65,7 +66,9 @@ function svg(room) {
 }
 
 module.exports = async function handler(req,res) {
-  const code = Array.isArray(req.query.code) ? req.query.code[0] : req.query.code;
+  const reference = Array.isArray(req.query.code) ? req.query.code[0] : req.query.code;
+  let code;
+  try { code = await expand(reference); } catch (_) { code = null; }
   const room = decodeRoom(code);
   if (!room) { res.statusCode = 404; return res.end('Room not found'); }
   try {

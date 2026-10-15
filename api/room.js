@@ -1,8 +1,11 @@
 'use strict';
 const { decodeRoom, formatTime, html: esc, zoneAbbr, zoneName, getBase, THEMES } = require('./_shared');
+const { expand } = require('./_links');
 
 module.exports = async function handler(req, res) {
-  const code = Array.isArray(req.query.code) ? req.query.code[0] : req.query.code;
+  const reference = Array.isArray(req.query.code) ? req.query.code[0] : req.query.code;
+  let code;
+  try { code = await expand(reference); } catch (_) { code = null; }
   const room = decodeRoom(code);
   if (!room) {
     res.statusCode = 404;
@@ -12,8 +15,9 @@ module.exports = async function handler(req, res) {
 
   const palette = THEMES[room.theme] || THEMES.copper;
   const base = getBase(req);
-  const pageUrl = `${base}/r/${encodeURIComponent(code)}`;
-  const imageUrl = `${base}/og/${encodeURIComponent(code)}`;
+  // Use the short identifier in both OG URLs so WhatsApp receives a real card.
+  const pageUrl = `${base}/r/${encodeURIComponent(reference)}`;
+  const imageUrl = `${base}/og/${encodeURIComponent(reference)}`;
   const meetingTime = `${formatTime(room.time)} ${zoneAbbr(room.zone)}`;
   const description = [room.schedule, meetingTime, room.meetingId ? `ID ${room.meetingId}` : '', room.passcode ? `Passcode ${room.passcode}` : ''].filter(Boolean).join(' · ');
   const displayName = esc(room.name);
