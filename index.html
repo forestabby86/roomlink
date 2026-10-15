@@ -19,12 +19,18 @@
   <section class="hero">
     <div class="eyebrow"><span class="dot"></span> MEETING LINKS, MADE HUMAN</div>
     <h1>More than a<br><em>blue Zoom logo.</em></h1>
-    <p>Give your group a meeting card that actually tells people <strong>where and when to show up.</strong> Make it once. Share it anywhere.</p>
+    <p>Give your group a meeting card that actually tells people <strong>where and when to show up.</strong> Pick a style. Make it once. Share it anywhere.</p>
   </section>
 
   <main class="workspace">
     <div class="editor panel">
       <div class="panel-head"><div><span class="kicker">01 / CREATE</span><h2>Your meeting details</h2></div><span class="step-icon">✳</span></div>
+      <details class="recover-link">
+        <summary>Already made a RoomLink? Edit it here <span>↗</span></summary>
+        <label for="existing-link">Paste your existing RoomLink</label>
+        <div class="load-row"><input id="existing-link" type="url" placeholder="https://your-site.vercel.app/r/…" aria-describedby="load-message"><button type="button" id="load-link-button">Load</button></div>
+        <p id="load-message" role="status" aria-live="polite">This fills in your old details. You can then create a new link; the old one won't change.</p>
+      </details>
       <form id="room-form">
         <label for="room-name">Room name <span class="required">*</span></label>
         <input id="room-name" name="room-name" type="text" required maxlength="80" autocomplete="off" placeholder="e.g. What's the Point — Morning Meeting">
@@ -65,6 +71,16 @@
         <input id="password" name="password" type="text" maxlength="60" autocomplete="off" placeholder="Optional; usually the same as passcode">
         <p class="field-help">Zoom normally uses “passcode” and “password” to mean the same thing. You may leave this last field blank.</p>
 
+        <fieldset class="theme-chooser">
+          <legend>Choose a card style</legend>
+          <div class="theme-options">
+            <label class="theme-tile"><input type="radio" name="theme" value="copper" checked><span class="swatch swatch-copper" aria-hidden="true"><span></span><span></span></span><span>Copper</span></label>
+            <label class="theme-tile"><input type="radio" name="theme" value="ocean"><span class="swatch swatch-ocean" aria-hidden="true"><span></span><span></span></span><span>Ocean</span></label>
+            <label class="theme-tile"><input type="radio" name="theme" value="forest"><span class="swatch swatch-forest" aria-hidden="true"><span></span><span></span></span><span>Forest</span></label>
+            <label class="theme-tile"><input type="radio" name="theme" value="plum"><span class="swatch swatch-plum" aria-hidden="true"><span></span><span></span></span><span>Plum</span></label>
+          </div>
+          <p class="field-help">Your selection changes the real image that appears in WhatsApp.</p>
+        </fieldset>
         <div class="privacy-consent"><label class="consent-row" for="public-consent">
           <input id="public-consent" type="checkbox" required>
           <span>I understand anyone with my RoomLink can see these meeting details, including any passcodes.</span>
@@ -80,7 +96,7 @@
         <div class="message-preview">
           <div class="message-context"><span class="chat-avatar">✳</span><span>Group chat <small>· WhatsApp-style preview</small></span></div>
           <div class="share-message">
-            <div class="meeting-image" id="meeting-image">
+            <div class="meeting-image" id="meeting-image" data-theme="copper">
               <div class="image-top"><span class="mini-pill">ZOOM MEETING</span><span class="mini-wordmark">ROOMLINK</span></div>
               <div class="image-body"><div class="preview-room-name" id="preview-name">Your meeting name</div><div class="preview-time" id="preview-time">9:00 AM CT</div><div class="preview-schedule" id="preview-schedule">Daily</div></div>
               <div class="image-fields" id="image-fields"><div class="image-field"><small>MEETING ID</small><strong>••• ••• ••••</strong></div><div class="image-field"><small>PASSCODE</small><strong>—</strong></div></div>
@@ -96,8 +112,9 @@
         <div class="result-head"><span class="done-icon">✓</span><div><span class="kicker">03 / SHARE</span><h2>Your meeting card is ready</h2></div></div>
         <label for="share-url">Share this link instead of the Zoom URL</label>
         <div class="share-link-row"><input id="share-url" type="text" readonly aria-label="Generated RoomLink URL"><button type="button" id="copy-button">Copy</button></div>
-        <div class="result-actions"><a class="whatsapp-button" id="whatsapp-button" target="_blank" rel="noopener noreferrer">Share to WhatsApp ↗</a><a class="test-button" id="test-button" target="_blank" rel="noopener noreferrer">Open meeting card ↗</a></div>
-        <p class="result-note">If you change any meeting details, press “Create my RoomLink” again and share the new link. No information is stored on a server.</p>
+        <div class="result-actions"><a class="whatsapp-button" id="whatsapp-button" target="_blank" rel="noopener noreferrer">Share to WhatsApp ↗</a><a class="test-button" id="test-button" target="_blank" rel="noopener noreferrer">Open meeting page ↗</a></div>
+        <div class="result-tools"><button type="button" id="copy-invite">Copy full invitation</button><a id="download-card" download="roomlink-meeting-card.png">Download image ↓</a><button id="device-share" type="button" hidden>Share from phone ↗</button></div><p class="share-feedback" id="share-feedback" role="status" aria-live="polite"></p>
+        <p class="result-note">Changing details creates a new link; already-shared links keep their original details. No account or server-side room storage.</p>
       </section>
       <aside class="tip"><span class="tip-icon">✦</span><div><strong>Designed for recurring meetings.</strong><p>AA, NA, recovery, book clubs, online classes, community groups — anywhere a blue Zoom square leaves people guessing.</p></div></aside>
     </div>
