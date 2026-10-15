@@ -6,17 +6,17 @@ const SHORT_ID = /^[A-Za-z0-9_-]{10}$/;
 function isShortId(value) { return typeof value === 'string' && SHORT_ID.test(value); }
 
 function configured() {
-  return Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+  return Boolean(process.env.ROOMLINK_KV_REST_API_URL && process.env.ROOMLINK_KV_REST_API_TOKEN);
 }
 
 async function redis(command) {
   if (!configured()) throw new Error('Short-link storage is not configured');
-  const endpoint = process.env.UPSTASH_REDIS_REST_URL;
+  const endpoint = process.env.ROOMLINK_KV_REST_API_URL;
   if (!/^https:\/\//.test(endpoint)) throw new Error('Storage endpoint must use HTTPS');
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`,
+      'Authorization': `Bearer ${process.env.ROOMLINK_KV_REST_API_TOKEN}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(command),
@@ -46,7 +46,7 @@ async function store(code) {
 async function creationAllowed(req) {
   // Lightweight, anonymous hourly limit. Hash the IP; do not save raw IP addresses.
   const ip = String(req.headers?.['x-forwarded-for'] || req.headers?.['x-real-ip'] || 'unknown').split(',')[0].trim().slice(0, 80);
-  const key = crypto.createHmac('sha256', process.env.UPSTASH_REDIS_REST_TOKEN)
+  const key = crypto.createHmac('sha256', process.env.ROOMLINK_KV_REST_API_TOKEN)
     .update(ip).digest('hex').slice(0, 24);
   const rateKey = `roomlink:limit:${key}:${Math.floor(Date.now()/3600000)}`;
   const uses = Number(await redis(['INCR', rateKey]));
